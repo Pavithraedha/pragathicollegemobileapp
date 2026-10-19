@@ -191,11 +191,13 @@ export interface AssignmentSubmission {
   studentId: string;
   studentName: string;
   submittedAt: string;
-  status: 'submitted' | 'late' | 'graded' | 'returned';
+  status: 'submitted' | 'late' | 'graded' | 'returned' | 'approved' | 'rejected';
   fileName?: string;
   fileSize?: string;
   marksAwarded?: number;
   teacherFeedback?: string;
+  reviewedAt?: string;
+  reviewedBy?: string;
 }
 
 export interface FeeItem {

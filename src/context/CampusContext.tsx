@@ -83,6 +83,12 @@ interface CampusContextType {
   createAssignment: (assignmentData: Omit<Assignment, 'id'>) => void;
   submitAssignment: (assignmentId: string, studentId: string, fileName: string, fileSize: string) => void;
   gradeSubmission: (submissionId: string, marksAwarded: number, teacherFeedback: string) => void;
+  reviewSubmission: (
+    submissionId: string,
+    action: 'approve' | 'reject',
+    marksAwarded?: number,
+    teacherFeedback?: string
+  ) => void;
   processFeePayment: (
     invoiceId: string,
     amount: number,
@@ -579,17 +585,31 @@ export const CampusProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     };
     setAssignments((prev) => [newAsg, ...prev]);
 
+    const todayStr = new Date().toISOString().split('T')[0];
+
     // Send notification to students
-    const notif: NotificationItem = {
-      id: `notif-${Date.now()}`,
+    const studentNotif: NotificationItem = {
+      id: `notif-${Date.now()}-stu`,
       role: 'student',
       title: 'New Homework Assigned',
       body: `${assignmentData.subjectName}: "${assignmentData.title}" is due on ${assignmentData.dueDate}.`,
-      date: new Date().toISOString().split('T')[0],
+      date: todayStr,
       read: false,
       type: 'homework',
     };
-    setNotifications((prev) => [notif, ...prev]);
+
+    // Also send notification to parents
+    const parentNotif: NotificationItem = {
+      id: `notif-${Date.now()}-par`,
+      role: 'parent',
+      title: 'New Homework Assigned to Ward',
+      body: `${assignmentData.subjectName}: "${assignmentData.title}" has been assigned for Class ${assignmentData.grade}-${assignmentData.section}. Due on ${assignmentData.dueDate}.`,
+      date: todayStr,
+      read: false,
+      type: 'homework',
+    };
+
+    setNotifications((prev) => [studentNotif, parentNotif, ...prev]);
 
     appendAudit('ASSIGNMENT_CREATED', `Teacher created assignment "${assignmentData.title}" for ${assignmentData.grade}-${assignmentData.section}`);
   };
@@ -601,6 +621,9 @@ export const CampusProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     fileSize: string
   ) => {
     const student = students.find((s) => s.id === studentId);
+    const asg = assignments.find((a) => a.id === assignmentId);
+    const todayStr = new Date().toISOString().split('T')[0];
+
     const newSubm: AssignmentSubmission = {
       id: `subm-${Date.now()}`,
       assignmentId,
@@ -617,7 +640,81 @@ export const CampusProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       return [...filtered, newSubm];
     });
 
-    appendAudit('ASSIGNMENT_SUBMITTED', `Student ${student?.fullName} uploaded submission "${fileName}"`);
+    // Notify Teacher for Review / Approval / Rejection
+    const teacherNotif: NotificationItem = {
+      id: `notif-${Date.now()}-tch`,
+      role: 'teacher',
+      title: 'Homework Submitted for Review',
+      body: `${student?.fullName || 'Student'} submitted homework for "${asg?.title || 'Assignment'}". Please review to approve or reject.`,
+      date: todayStr,
+      read: false,
+      type: 'homework',
+    };
+    setNotifications((prev) => [teacherNotif, ...prev]);
+
+    appendAudit('ASSIGNMENT_SUBMITTED', `Student ${student?.fullName} uploaded submission "${fileName}" for "${asg?.title || assignmentId}"`);
+  };
+
+  const reviewSubmission = (
+    submissionId: string,
+    action: 'approve' | 'reject',
+    marksAwarded?: number,
+    teacherFeedback?: string
+  ) => {
+    const timestamp = new Date().toISOString();
+    const todayStr = timestamp.split('T')[0];
+    const sub = submissions.find((s) => s.id === submissionId);
+    const asg = sub ? assignments.find((a) => a.id === sub.assignmentId) : undefined;
+    const isApproved = action === 'approve';
+    const finalStatus = isApproved ? 'approved' : 'rejected';
+
+    setSubmissions((prev) =>
+      prev.map((s) =>
+        s.id === submissionId
+          ? {
+              ...s,
+              status: finalStatus,
+              marksAwarded: isApproved ? marksAwarded : undefined,
+              teacherFeedback: teacherFeedback || (isApproved ? 'Approved by faculty.' : 'Submission rejected. Please revise and resubmit.'),
+              reviewedAt: timestamp,
+              reviewedBy: currentUser.name,
+            }
+          : s
+      )
+    );
+
+    // Notify Student
+    const studentNotif: NotificationItem = {
+      id: `notif-${Date.now()}-stu-rev`,
+      role: 'student',
+      title: isApproved ? 'Homework Approved' : 'Homework Rejected (Revision Required)',
+      body: isApproved
+        ? `Your submission for "${asg?.title || 'Assignment'}" has been approved! Marks: ${marksAwarded ?? ''}/${asg?.maxMarks || ''}. Remarks: ${teacherFeedback || 'Well done'}.`
+        : `Your submission for "${asg?.title || 'Assignment'}" was rejected. Remarks: ${teacherFeedback || 'Please correct errors and resubmit'}.`,
+      date: todayStr,
+      read: false,
+      type: 'homework',
+    };
+
+    // Notify Parent
+    const parentNotif: NotificationItem = {
+      id: `notif-${Date.now()}-par-rev`,
+      role: 'parent',
+      title: isApproved ? 'Ward Homework Approved' : 'Ward Homework Requires Revision',
+      body: isApproved
+        ? `${sub?.studentName || 'Ward'}'s homework for "${asg?.title || 'Assignment'}" was reviewed & approved by ${currentUser.name} (${marksAwarded ?? ''}/${asg?.maxMarks || ''} marks).`
+        : `${sub?.studentName || 'Ward'}'s homework for "${asg?.title || 'Assignment'}" was returned for revision by ${currentUser.name}. Remarks: ${teacherFeedback || 'Revision requested'}.`,
+      date: todayStr,
+      read: false,
+      type: 'homework',
+    };
+
+    setNotifications((prev) => [studentNotif, parentNotif, ...prev]);
+
+    appendAudit(
+      isApproved ? 'ASSIGNMENT_APPROVED' : 'ASSIGNMENT_REJECTED',
+      `Teacher ${currentUser.name} marked submission #${submissionId} as ${finalStatus} for ${sub?.studentName}.`
+    );
   };
 
   const gradeSubmission = (
@@ -625,19 +722,7 @@ export const CampusProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     marksAwarded: number,
     teacherFeedback: string
   ) => {
-    setSubmissions((prev) =>
-      prev.map((s) =>
-        s.id === submissionId
-          ? {
-              ...s,
-              status: 'graded',
-              marksAwarded,
-              teacherFeedback,
-            }
-          : s
-      )
-    );
-    appendAudit('ASSIGNMENT_GRADED', `Graded submission #${submissionId}: ${marksAwarded} marks awarded.`);
+    reviewSubmission(submissionId, 'approve', marksAwarded, teacherFeedback);
   };
 
   // 6. Fee Management & Payment Gateway Simulation (Razorpay)
@@ -782,6 +867,7 @@ export const CampusProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         createAssignment,
         submitAssignment,
         gradeSubmission,
+        reviewSubmission,
         processFeePayment,
         addAnnouncement,
         markNotificationRead,
