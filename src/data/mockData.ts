@@ -17,31 +17,38 @@ import {
   AuditLog
 } from '../types';
 
+import rohanAvatar from '../assets/images/indian_student_rohan_1792405349753.jpg';
+import arvindAvatar from '../assets/images/indian_parent_arvind_1792405350082.jpg';
+import vermaAvatar from '../assets/images/indian_teacher_verma_1792405349874.jpg';
+import ananyaAvatar from '../assets/images/indian_student_ananya_1792405369494.jpg';
+import aaravAvatar from '../assets/images/indian_student_aarav_1792405559625.jpg';
+import diyaAvatar from '../assets/images/indian_student_diya_1792405560644.jpg';
+
 export const mockUsers: User[] = [
   {
     id: 'user-parent-1',
     name: 'Mr. Arvind Sharma',
-    email: 'arvind.sharma@example.com',
+    email: 'arvind.sharma@pragathi.edu',
     role: 'parent',
-    avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80',
+    avatar: arvindAvatar,
     phone: '+91 98450 12345',
     linkedStudentIds: ['student-1', 'student-2'],
   },
   {
     id: 'user-student-1',
     name: 'Rohan Sharma',
-    email: 'rohan.s@smartcampus.edu',
+    email: 'rohan.s@pragathi.edu',
     role: 'student',
-    avatar: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=150&auto=format&fit=crop&q=80',
+    avatar: rohanAvatar,
     phone: '+91 98450 54321',
     studentId: 'student-1',
   },
   {
     id: 'user-teacher-1',
     name: 'Mr. Rajesh Verma',
-    email: 'r.verma@smartcampus.edu',
+    email: 'r.verma@pragathi.edu',
     role: 'teacher',
-    avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&auto=format&fit=crop&q=80',
+    avatar: vermaAvatar,
     phone: '+91 98765 43210',
     designation: 'HOD Mathematics & Senior Educator',
     assignedClassIds: ['10-A', '10-B', '9-A'],
@@ -53,12 +60,12 @@ export const mockStudents: StudentProfile[] = [
   {
     id: 'student-1',
     fullName: 'Rohan Sharma',
-    admissionNo: 'SC-2023-1042',
+    admissionNo: 'PRAG-2024-1042',
     rollNo: '18',
     grade: '10',
     section: 'A',
     academicYear: '2026-2027',
-    avatar: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=150&auto=format&fit=crop&q=80',
+    avatar: rohanAvatar,
     dob: '2010-08-14',
     bloodGroup: 'B+',
     gender: 'Male',
@@ -83,7 +90,7 @@ export const mockStudents: StudentProfile[] = [
     grade: '7',
     section: 'B',
     academicYear: '2026-2027',
-    avatar: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=150&auto=format&fit=crop&q=80',
+    avatar: ananyaAvatar,
     dob: '2013-11-22',
     bloodGroup: 'O+',
     gender: 'Female',
@@ -108,14 +115,14 @@ export const mockStudents: StudentProfile[] = [
     grade: '10',
     section: 'A',
     academicYear: '2026-2027',
-    avatar: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=150&auto=format&fit=crop&q=80',
+    avatar: aaravAvatar,
     dob: '2010-04-12',
     bloodGroup: 'A+',
     gender: 'Male',
     parentId: 'user-parent-2',
     parentName: 'Vikram Patel',
     parentPhone: '+91 98111 22334',
-    parentEmail: 'vikram.patel@example.com',
+    parentEmail: 'vikram.patel@pragathi.edu',
     hostelAllocated: false,
     busRoute: 'Route 05 - Koramangala',
     address: 'Flat 12, Green Glen Layout, Bellandur',
@@ -128,12 +135,12 @@ export const mockStudents: StudentProfile[] = [
   {
     id: 'student-4',
     fullName: 'Diya Krishnan',
-    admissionNo: 'SC-2023-1015',
+    admissionNo: 'PRAG-2024-1015',
     rollNo: '08',
     grade: '10',
     section: 'A',
     academicYear: '2026-2027',
-    avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&auto=format&fit=crop&q=80',
+    avatar: diyaAvatar,
     dob: '2010-09-03',
     bloodGroup: 'AB+',
     gender: 'Female',

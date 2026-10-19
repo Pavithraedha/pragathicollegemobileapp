@@ -324,6 +324,7 @@ const CampusApp: React.FC = () => {
         }}
         isMobileDeviceFrame={isMobileDeviceFrame}
         onToggleDeviceFrame={() => setIsMobileDeviceFrame(!isMobileDeviceFrame)}
+        onLogout={() => setIsAuthenticated(false)}
       />
 
       {/* Main Content Area */}

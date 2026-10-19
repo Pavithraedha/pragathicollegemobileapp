@@ -9,10 +9,12 @@ import {
   Smartphone,
   Monitor,
   Sun,
-  Moon
+  Moon,
+  LogOut,
+  UserCheck,
+  GraduationCap
 } from 'lucide-react';
 import { useCampus } from '../../context/CampusContext';
-import { UserRole } from '../../types';
 import { PragathiLogo } from './PragathiLogo';
 
 interface HeaderProps {
@@ -21,6 +23,7 @@ interface HeaderProps {
   onNavigateTab: (tab: string) => void;
   isMobileDeviceFrame: boolean;
   onToggleDeviceFrame: () => void;
+  onLogout: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -29,11 +32,11 @@ export const Header: React.FC<HeaderProps> = ({
   onNavigateTab,
   isMobileDeviceFrame,
   onToggleDeviceFrame,
+  onLogout,
 }) => {
   const {
     currentUser,
     currentRole,
-    switchRole,
     selectedChildId,
     switchChild,
     students,
@@ -53,15 +56,15 @@ export const Header: React.FC<HeaderProps> = ({
 
   return (
     <header className="sticky top-0 z-30 bg-[#163B70] dark:bg-[#0c1e3a] text-white shadow-md border-b border-blue-900/50 dark:border-slate-800 transition-colors">
-      {/* Top primary row */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between gap-3">
-        {/* Brand Zone */}
-        <div className="flex items-center gap-2.5 shrink-0">
-          <div className="w-9 h-9 rounded-xl bg-white p-0.5 shadow-sm border border-white/40 flex items-center justify-center shrink-0">
-            <PragathiLogo size={34} className="w-full h-full" />
+      {/* Top primary bar */}
+      <div className="max-w-7xl mx-auto px-3 sm:px-6 h-14 flex items-center justify-between gap-2">
+        {/* Brand Zone: Pragathi Junior College and Logo */}
+        <div className="flex items-center gap-2 sm:gap-2.5 shrink-0">
+          <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-white p-0.5 shadow-sm border border-white/50 flex items-center justify-center shrink-0">
+            <PragathiLogo size={36} className="w-full h-full" />
           </div>
           <div>
-            <h1 className="text-xs sm:text-sm font-extrabold tracking-tight text-white leading-tight">
+            <h1 className="text-xs sm:text-sm font-black tracking-tight text-white leading-tight">
               PRAGATHI JUNIOR COLLEGE
             </h1>
             <span className="text-[10px] text-blue-200 font-medium tracking-wide block leading-none">
@@ -70,56 +73,57 @@ export const Header: React.FC<HeaderProps> = ({
           </div>
         </div>
 
-        {/* Role Switcher (Parent | Student | Teacher) */}
-        <div className="flex items-center gap-1 bg-[#0c2340]/80 dark:bg-slate-900/90 p-1 rounded-xl border border-blue-500/30 text-xs">
-          {(['parent', 'student', 'teacher'] as UserRole[]).map((role) => {
-            const isActive = currentRole === role;
-            const label = role === 'parent' ? 'Parent' : role === 'student' ? 'Student' : 'Teacher';
-            return (
-              <button
-                key={role}
-                onClick={() => {
-                  switchRole(role);
-                  onNavigateTab('home');
-                }}
-                className={`px-2.5 sm:px-3 py-1 rounded-lg text-xs font-semibold transition-all whitespace-nowrap ${
-                  isActive
-                    ? 'bg-blue-600 text-white shadow-xs'
-                    : 'text-blue-200 hover:text-white hover:bg-white/5'
-                }`}
-              >
-                {label}
-              </button>
-            );
-          })}
+        {/* Role Portal Indicator Badge (Shows ONLY the logged-in role - no switcher buttons) */}
+        <div className="flex items-center">
+          {currentRole === 'parent' && (
+            <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-600/90 dark:bg-blue-600 border border-blue-400/50 text-white shadow-xs">
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shrink-0" />
+              <span className="text-xs sm:text-sm font-bold tracking-wide">Parent</span>
+            </div>
+          )}
+
+          {currentRole === 'student' && (
+            <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-600/90 dark:bg-emerald-600 border border-emerald-400/50 text-white shadow-xs">
+              <span className="w-2 h-2 rounded-full bg-emerald-300 animate-pulse shrink-0" />
+              <span className="text-xs sm:text-sm font-bold tracking-wide">Student</span>
+            </div>
+          )}
+
+          {currentRole === 'teacher' && (
+            <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-purple-600/90 dark:bg-purple-600 border border-purple-400/50 text-white shadow-xs">
+              <span className="w-2 h-2 rounded-full bg-purple-300 animate-pulse shrink-0" />
+              <span className="text-xs sm:text-sm font-bold tracking-wide">Teacher</span>
+            </div>
+          )}
         </div>
 
         {/* Right utility actions */}
-        <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+        <div className="flex items-center gap-1 sm:gap-2 shrink-0">
           {/* Dark / Light Mode Toggle Button */}
           <button
             onClick={toggleDarkMode}
+            type="button"
             title={darkMode ? "Switch to Light Mode" : "Switch to Dark Mode"}
-            className="flex items-center gap-1 px-2.5 py-1 text-xs text-blue-200 hover:text-white hover:bg-white/10 rounded-lg transition-colors border border-blue-400/20"
+            className="flex items-center gap-1 px-2 sm:px-2.5 py-1 text-xs text-blue-200 hover:text-white bg-white/10 hover:bg-white/20 rounded-lg transition-colors border border-blue-400/30 cursor-pointer"
           >
             {darkMode ? (
               <>
                 <Sun className="w-3.5 h-3.5 text-amber-300" />
-                <span className="text-[11px] hidden sm:inline">Light</span>
+                <span className="text-[11px] font-medium hidden xs:inline">Light</span>
               </>
             ) : (
               <>
                 <Moon className="w-3.5 h-3.5 text-blue-200" />
-                <span className="text-[11px] hidden sm:inline">Dark</span>
+                <span className="text-[11px] font-medium hidden xs:inline">Dark</span>
               </>
             )}
           </button>
 
-          {/* Frame View Toggle (Mobile Smartphone Frame vs Wide Responsive) */}
+          {/* Frame View Toggle (Mobile Smartphone Frame vs Wide Responsive Canvas) */}
           <button
             onClick={onToggleDeviceFrame}
             title={isMobileDeviceFrame ? "Switch to Wide Responsive Canvas" : "Switch to Mobile Phone Frame"}
-            className="hidden sm:flex items-center gap-1 px-2 py-1 text-xs text-blue-200 hover:text-white hover:bg-white/10 rounded-lg transition-colors border border-blue-400/20"
+            className="hidden sm:flex items-center gap-1 px-2 py-1 text-xs text-blue-200 hover:text-white hover:bg-white/10 rounded-lg transition-colors border border-blue-400/20 cursor-pointer"
           >
             {isMobileDeviceFrame ? (
               <>
@@ -134,32 +138,11 @@ export const Header: React.FC<HeaderProps> = ({
             )}
           </button>
 
-          {/* System Audit Log */}
-          <button
-            onClick={onOpenAudit}
-            title="System Audit Log"
-            className="p-2 text-blue-200 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
-          >
-            <Shield className="w-4 h-4" />
-          </button>
-
-          {/* Reset Demo Data */}
-          <button
-            onClick={() => {
-              if (confirm('Reset all demo attendance, syllabus, grades, and payments to default?')) {
-                resetToDemoDefaults();
-              }
-            }}
-            title="Reset Demo Data"
-            className="p-2 text-blue-200 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
-          >
-            <RotateCcw className="w-4 h-4" />
-          </button>
-
           {/* Notifications */}
           <button
             onClick={onOpenNotifications}
-            className="relative p-2 text-blue-200 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
+            title="Announcements & Alerts"
+            className="relative p-2 text-blue-200 hover:text-white hover:bg-white/10 rounded-lg transition-colors cursor-pointer"
           >
             <Bell className="w-4 h-4" />
             {unreadCount > 0 && (
@@ -169,12 +152,45 @@ export const Header: React.FC<HeaderProps> = ({
             )}
           </button>
 
+          {/* System Audit Log */}
+          <button
+            onClick={onOpenAudit}
+            title="System Audit Log"
+            className="hidden sm:flex p-2 text-blue-200 hover:text-white hover:bg-white/10 rounded-lg transition-colors cursor-pointer"
+          >
+            <Shield className="w-4 h-4" />
+          </button>
+
+          {/* Reset Demo Data */}
+          <button
+            onClick={() => {
+              if (confirm('Reset demo attendance, syllabus, grades, and payments to default?')) {
+                resetToDemoDefaults();
+              }
+            }}
+            title="Reset Demo Data"
+            className="hidden sm:flex p-2 text-blue-200 hover:text-white hover:bg-white/10 rounded-lg transition-colors cursor-pointer"
+          >
+            <RotateCcw className="w-4 h-4" />
+          </button>
+
+          {/* Logout Button */}
+          <button
+            onClick={onLogout}
+            title="Sign Out / Switch Account"
+            className="flex items-center gap-1 px-2 sm:px-2.5 py-1 text-xs text-red-200 hover:text-white bg-red-600/30 hover:bg-red-600/50 rounded-lg transition-colors border border-red-400/40 cursor-pointer"
+          >
+            <LogOut className="w-3.5 h-3.5" />
+            <span className="text-[11px] font-medium hidden sm:inline">Logout</span>
+          </button>
+
           {/* Active User Avatar */}
-          <div className="flex items-center gap-2 pl-1 border-l border-blue-400/30">
+          <div className="flex items-center pl-1 border-l border-blue-400/30">
             <img
               src={currentUser.avatar}
               alt={currentUser.name}
-              className="w-7 h-7 rounded-full object-cover border border-blue-400/50"
+              className="w-7 h-7 sm:w-8 sm:h-8 rounded-full object-cover border border-white/60 shadow-xs"
+              title={`${currentUser.name} (${currentRole})`}
             />
           </div>
         </div>
@@ -182,14 +198,14 @@ export const Header: React.FC<HeaderProps> = ({
 
       {/* Sub-bar for Parents: Child Switcher Banner */}
       {currentRole === 'parent' && (
-        <div className="bg-[#1b437e] px-4 sm:px-6 py-2 border-t border-blue-500/20">
+        <div className="bg-[#1b437e] dark:bg-[#11294d] px-3 sm:px-6 py-2 border-t border-blue-500/20">
           <div className="max-w-7xl mx-auto flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <span className="text-xs text-blue-200 font-medium">Active Child:</span>
+              <span className="text-xs text-blue-200 font-medium">Ward:</span>
               <div className="relative">
                 <button
                   onClick={() => setIsChildDropdownOpen(!isChildDropdownOpen)}
-                  className="flex items-center gap-2 px-3 py-1 bg-white/10 hover:bg-white/15 text-white rounded-lg text-xs font-semibold border border-white/20 transition-colors"
+                  className="flex items-center gap-2 px-3 py-1 bg-white/10 hover:bg-white/15 text-white rounded-lg text-xs font-semibold border border-white/20 transition-colors cursor-pointer"
                 >
                   <img
                     src={currentChild.avatar}
@@ -215,7 +231,7 @@ export const Header: React.FC<HeaderProps> = ({
                           switchChild(child.id);
                           setIsChildDropdownOpen(false);
                         }}
-                        className={`w-full px-3 py-2 text-left flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors text-xs ${
+                        className={`w-full px-3 py-2 text-left flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors text-xs cursor-pointer ${
                           child.id === selectedChildId
                             ? 'bg-blue-50/70 dark:bg-blue-950/60 font-semibold text-blue-700 dark:text-blue-300'
                             : 'text-slate-700 dark:text-slate-200'
@@ -255,14 +271,14 @@ export const Header: React.FC<HeaderProps> = ({
 
       {/* Sub-bar for Teachers: Assigned Class Info */}
       {currentRole === 'teacher' && (
-        <div className="bg-[#1b437e] px-4 sm:px-6 py-1.5 border-t border-blue-500/20 text-xs text-blue-100">
+        <div className="bg-[#1b437e] dark:bg-[#11294d] px-3 sm:px-6 py-1.5 border-t border-blue-500/20 text-xs text-blue-100">
           <div className="max-w-7xl mx-auto flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Users className="w-3.5 h-3.5 text-blue-300" />
-              <span>Assigned as: <strong className="text-white">Class Teacher (10-A) & HOD Mathematics</strong></span>
+              <span>Faculty: <strong className="text-white">Class Teacher (10-A) & HOD Mathematics</strong></span>
             </div>
             <div className="text-[11px] text-blue-200">
-              Live Classroom Portal · Session 2026-27
+              Session 2026-27
             </div>
           </div>
         </div>

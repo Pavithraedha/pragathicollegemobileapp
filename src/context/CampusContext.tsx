@@ -98,7 +98,7 @@ interface CampusContextType {
 
 const CampusContext = createContext<CampusContextType | undefined>(undefined);
 
-const STORAGE_KEY = 'smart_campus_state_v1';
+const STORAGE_KEY = 'pragathi_campus_state_v3';
 
 export const CampusProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   // Load initial state from localStorage or mockData
