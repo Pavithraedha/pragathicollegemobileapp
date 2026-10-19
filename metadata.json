@@ -1,0 +1,6 @@
+{
+  "name": "Pragathi Junior College - Smart Campus",
+  "description": "Official mobile-first student, parent, and faculty management portal for Pragathi Jr. Degree & PG College.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
